@@ -3,14 +3,8 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.createTable("bookings", (table) => {
+  return knex.schema.createTable("comments", (table) => {
     table.increments("id").primary();
-    table
-      .integer("pet_id")
-      .unsigned()
-      .references("pets.id")
-      .onUpdate("CASCADE")
-      .onDelete("CASCADE");
     table
       .integer("user_id")
       .unsigned()
@@ -18,14 +12,14 @@ exports.up = function (knex) {
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
     table
-      .integer("user_provider_id")
+      .integer("booking_id")
       .unsigned()
-      .references("users.id")
+      .references("bookings.id")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
-    table.integer("comment_id").unsigned().references("comments.id");
-    table.timestamp("date_start").notNullable();
-    table.timestamp("date_end").notNullable();
+    table.string("title").notNullable();
+    table.integer("rate").notNullable();
+    table.string("comment").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
       .timestamp("updated_at")
@@ -38,5 +32,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable("bookings");
+  return knex.schema.dropTable("comments");
 };

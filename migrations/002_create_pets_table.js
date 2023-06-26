@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.createTable("comments", (table) => {
+  return knex.schema.createTable("pets", (table) => {
     table.increments("id").primary();
     table
       .integer("user_id")
@@ -11,15 +11,11 @@ exports.up = function (knex) {
       .references("users.id")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
-    table
-      .integer("comment_user_id")
-      .unsigned()
-      .references("users.id")
-      .onUpdate("CASCADE")
-      .onDelete("CASCADE");
-    table.string("title").notNullable();
-    table.integer("rate").notNullable();
-    table.string("comment").notNullable();
+    table.string("name").notNullable();
+    table.string("birth_date").notNullable();
+    table.string("type").notNullable();
+    table.string("breed").notNullable();
+    table.string("bio").notNullable();
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
       .timestamp("updated_at")
@@ -32,5 +28,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable("comments");
+  return knex.schema.dropTable("pets");
 };
