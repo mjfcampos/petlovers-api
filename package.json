@@ -9,6 +9,7 @@
     "migrate": "npx knex migrate:latest",
     "migrate:down": "npx knex migrate:down",
     "migrate:rollback": "npx knex migrate:rollback",
+    "migrate:list": "npx knex migrate:list",
     "seed": "npx knex seed:run"
   },
   "keywords": [],
