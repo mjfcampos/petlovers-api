@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors"); // CORS: Cross Origin Resource Sharing
 const app = express();
+const homeRoutes = require("./routes/home");
+const usersRoutes = require("./routes/users");
 
 require("dotenv").config(); // load variables from .env file
 const PORT = process.env.PORT || 8080; // Set server port from .env file
@@ -14,10 +16,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// home route
-app.use("/", (req, res) => {
-  res.status(200).send("API is working");
-});
+// Routes
+app.use("/", homeRoutes);
+app.use("/users", usersRoutes);
 
 /*
  * Start the server on an BIND_ADDRESS and PORT number (socket)
