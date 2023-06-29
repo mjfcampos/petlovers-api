@@ -74,7 +74,7 @@ exports.seed = async function (knex) {
     {
       id: 14,
       user_id: 38,
-      service_id: 1,
+      service_id: 10,
     },
     {
       id: 15,
@@ -144,7 +144,7 @@ exports.seed = async function (knex) {
     {
       id: 28,
       user_id: 40,
-      service_id: 10,
+      service_id: 5,
     },
     {
       id: 29,
@@ -169,7 +169,7 @@ exports.seed = async function (knex) {
     {
       id: 33,
       user_id: 38,
-      service_id: 1,
+      service_id: 9,
     },
     {
       id: 34,
@@ -239,7 +239,7 @@ exports.seed = async function (knex) {
     {
       id: 47,
       user_id: 40,
-      service_id: 10,
+      service_id: 7,
     },
     {
       id: 48,
@@ -259,7 +259,7 @@ exports.seed = async function (knex) {
     {
       id: 51,
       user_id: 37,
-      service_id: 9,
+      service_id: 7,
     },
     {
       id: 52,
@@ -284,7 +284,7 @@ exports.seed = async function (knex) {
     {
       id: 56,
       user_id: 40,
-      service_id: 10,
+      service_id: 5,
     },
     {
       id: 57,
@@ -329,7 +329,7 @@ exports.seed = async function (knex) {
     {
       id: 65,
       user_id: 40,
-      service_id: 10,
+      service_id: 3,
     },
     {
       id: 66,
@@ -374,7 +374,7 @@ exports.seed = async function (knex) {
     {
       id: 74,
       user_id: 40,
-      service_id: 10,
+      service_id: 2,
     },
     {
       id: 75,
@@ -419,7 +419,7 @@ exports.seed = async function (knex) {
     {
       id: 83,
       user_id: 40,
-      service_id: 10,
+      service_id: 9,
     },
     {
       id: 84,
@@ -464,7 +464,7 @@ exports.seed = async function (knex) {
     {
       id: 92,
       user_id: 40,
-      service_id: 10,
+      service_id: 8,
     },
     {
       id: 93,

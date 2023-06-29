@@ -85,6 +85,39 @@ function getSingleUser(req, res) {
     });
 }
 
+// Get services by user id
+function getUserServices(req, res) {
+  const userId = req.params.id;
+
+  knex
+    .select(
+      "services.name",
+      "user_services.id",
+      "user_services.user_id",
+      "user_services.service_id"
+    )
+    .from("services")
+    .join("user_services", "user_services.service_id", "services.id")
+    .where({ user_id: userId })
+    .then((response) => {
+      if (response.length === 0) {
+        return res
+          .status(404)
+          .json({ message: `User with ID: ${userId} not  found` });
+      }
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      // Console.log shows the error only on the server side
+      console.log(
+        `getUserServices: Unable to retrieve data with ID: ${req.params.id} ${err}`
+      );
+      res.status(500).json({
+        message: `Unable to retrieve data with ID: ${req.params.id}`,
+      });
+    });
+}
+
 // POST functions
 // Add a new User
 function postUser(req, res) {
@@ -106,6 +139,11 @@ function postUser(req, res) {
     });
 }
 
+// Add a service to a user
+function postUserService(req, res) {
+  return res.status(200).json({ messsage: "Not implemented." });
+}
+
 // DELETE
 // Delete a user
 function deleteUser(req, res) {
@@ -125,6 +163,31 @@ function deleteUser(req, res) {
     });
 }
 
+// Delete service by user id/service id
+function deleteUserService(req, res) {
+  if (!Number(req.params.id) || !Number(req.params.srvId)) {
+    return res.status(404).json({
+      message: `User ID and Service ID should be a number.`,
+    });
+  }
+  knex("user_services")
+    .where({ user_id: req.params.id })
+    .andWhere({ id: req.params.srvId })
+    .del()
+    .then((result) => {
+      if (result === 0) {
+        return res.status(404).json({
+          message: `User / Service with ID: ${req.params.id} / ${req.params.srvId} to be deleted not found.`,
+        });
+      }
+      res.status(204).send();
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Unable to delete service" });
+    });
+  // return res.status(200).json({ message: "Not implemented" });
+}
 // PUT
 // Edit User
 function editUser(req, res) {
@@ -241,5 +304,8 @@ module.exports = {
   deleteUser,
   editUser,
   getSingleUser,
+  getUserServices,
+  postUserService,
+  deleteUserService,
   validateBody,
 };

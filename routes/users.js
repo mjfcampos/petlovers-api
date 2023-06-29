@@ -7,26 +7,34 @@ const {
   editUser,
   getUsers,
   getSingleUser,
+  getUserServices,
+  postUserService,
+  deleteUserService,
   validateBody,
 } = usersController;
 
 /*
- * GET Users
+ * GET
  */
-router.get("/", getUsers).get("/:id", getSingleUser);
+router
+  .get("/", getUsers)
+  .get("/:id", getSingleUser)
+  .get("/:id/services", getUserServices);
 
 /*
- * POST User
+ * POST
  */
-router.post("/", validateBody, postUser);
+router.post("/", validateBody, postUser).post("/:id/service", postUserService);
 
 /*
- * DELETE User
+ * DELETE
  */
-router.delete("/:id", deleteUser);
+router
+  .delete("/:id", deleteUser)
+  .delete("/:id/service/:srvId", deleteUserService);
 
 /*
- * PUT User
+ * PUT
  */
 router.put("/:id", validateBody, editUser);
 
