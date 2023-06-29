@@ -88,60 +88,6 @@ function getSingleUser(req, res) {
 // POST functions
 // Add a new User
 function postUser(req, res) {
-  // Check if the body has all required fields
-  const requiredFields = [
-    "first_name",
-    "last_name",
-    "birth_date",
-    "address",
-    "city",
-    "country",
-    "email",
-    "phone",
-    "type",
-    "bio",
-  ];
-
-  for (const field of requiredFields) {
-    if (!req.body[field]) {
-      return res.status(400).json({ message: `Please provide ${field}` });
-    }
-  }
-
-  // Validate user type: client, provider, admin
-  const userType = req.body.type;
-  const userTypes = ["client", "provider", "admin"];
-  if (!userTypes.includes(userType)) {
-    return res
-      .status(400)
-      .json({ message: `Please provide a valide user type: ${userType}` });
-  }
-
-  // Validate email and phone
-  const phoneMask = /^\+\d{1,3} \(\d{3}\) \d{3}-\d{4}$/;
-  const emailMask = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!phoneMask.test(req.body.phone)) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid phone number" });
-  }
-
-  if (!emailMask.test(req.body.email)) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid email address" });
-  }
-
-  // Validate birth date
-  const birthDateMask =
-    /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/;
-  if (!birthDateMask.test(req.body.birth_date)) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid birth date" });
-  }
-
   knex("users")
     .insert(req.body)
     .then((result) => {
@@ -160,7 +106,8 @@ function postUser(req, res) {
     });
 }
 
-// Delete an Inventory Item
+// DELETE
+// Delete a user
 function deleteUser(req, res) {
   knex("users")
     .where({ id: req.params.id })
@@ -178,8 +125,51 @@ function deleteUser(req, res) {
     });
 }
 
-// Edit an Inventory Item
+// PUT
+// Edit User
 function editUser(req, res) {
+  const userId = req.params.id;
+
+  knex("users")
+    .where({ id: userId })
+    .update(req.body)
+    .then((user) => {
+      if (user === 0) {
+        return res
+          .status(404)
+          .json({ message: `User with ID ${userId} not found` });
+      }
+      return knex("users")
+        .select(
+          "first_name",
+          "last_name",
+          "birth_date",
+          "address",
+          "city",
+          "country",
+          "email",
+          "phone",
+          "type",
+          "bio"
+        )
+        .where({
+          id: userId,
+        });
+    })
+    .then((updatedUser) => {
+      res.status(200).json(updatedUser[0]);
+    })
+    .catch((err) => {
+      // Console.log shows the error only on the server side
+      console.log(`editUser: Unable to update user with ID: ${userId} ${err}`);
+      res.status(500).json({
+        message: `Unable to update user with ID: ${userId}`,
+      });
+    });
+}
+
+// Validate body message
+function validateBody(req, res, next) {
   const requiredFields = [
     "first_name",
     "last_name",
@@ -193,14 +183,23 @@ function editUser(req, res) {
     "bio",
   ];
 
+  // Filter out keys that are not present in requiredFields
+  const filteredFields = Object.keys(req.body)
+    .filter((key) => requiredFields.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = req.body[key];
+      return obj;
+    }, {});
+
+  // Validate requiredFields
   for (const field of requiredFields) {
-    if (!req.body[field]) {
+    if (!filteredFields[field]) {
       return res.status(400).json({ message: `Please provide ${field}` });
     }
   }
 
   // Validate user type: client, provider, admin
-  const userType = req.body.type;
+  const userType = filteredFields.type;
   const userTypes = ["client", "provider", "admin"];
   if (!userTypes.includes(userType)) {
     return res
@@ -212,13 +211,13 @@ function editUser(req, res) {
   const phoneMask = /^\+\d{1,3} \(\d{3}\) \d{3}-\d{4}$/;
   const emailMask = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!phoneMask.test(req.body.phone)) {
+  if (!phoneMask.test(filteredFields.phone)) {
     return res
       .status(400)
       .json({ message: "Please provide a valid phone number" });
   }
 
-  if (!emailMask.test(req.body.email)) {
+  if (!emailMask.test(filteredFields.email)) {
     return res
       .status(400)
       .json({ message: "Please provide a valid email address" });
@@ -227,13 +226,13 @@ function editUser(req, res) {
   // Validate birth date
   const birthDateMask =
     /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/;
-  if (!birthDateMask.test(req.body.birth_date)) {
+  if (!birthDateMask.test(filteredFields.birth_date)) {
     return res
       .status(400)
       .json({ message: "Please provide a valid birth date" });
   }
-
-  return res.status(200).send("Exit...");
+  req.body = { ...filteredFields };
+  next();
 }
 
 module.exports = {
@@ -242,4 +241,5 @@ module.exports = {
   deleteUser,
   editUser,
   getSingleUser,
+  validateBody,
 };
