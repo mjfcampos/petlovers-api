@@ -1,34 +1,33 @@
 const knex = require("knex")(require("../knexfile"));
 
 // GET functions
-// GET all users
-function getUsers(req, res) {
+// GET all pets by user
+function getPets(req, res) {
+  const userId = req.params.userId;
   const querySearch = req.query.s;
   const sortBy = req.query.sort_by;
   const orderBy = req.query.order_by || "asc";
 
-  let query = knex("users").select(
-    "id",
-    "first_name",
-    "last_name",
-    "birth_date",
-    "address",
-    "city",
-    "country",
-    "email",
-    "phone",
-    "type",
-    "bio",
-    "created_at"
-  );
+  let query = knex("pets")
+    .select(
+      "id",
+      "user_id",
+      "name",
+      "birth_date",
+      "type",
+      "breed",
+      "bio",
+      "created_at"
+    )
+    .where({ user_id: userId });
 
   if (querySearch) {
     const searchTerm = querySearch.toLowerCase();
     query = query.where((builder) =>
       builder
-        .whereRaw("LOWER(first_name) LIKE ?", `%${searchTerm}%`)
-        .orWhereRaw("LOWER(last_name) LIKE ?", `%${searchTerm}%`)
-        .orWhereRaw("LOWER(bio) LIKE ?", `%${searchTerm}%`)
+        .whereRaw("LOWER(name) LIKE ?", `%${searchTerm}%`)
+        .orWhereRaw("LOWER(type) LIKE ?", `%${searchTerm}%`)
+        .orWhereRaw("LOWER(breed) LIKE ?", `%${searchTerm}%`)
     );
   }
 
@@ -45,31 +44,29 @@ function getUsers(req, res) {
   });
 }
 
-// Get a single user by id
-function getSingleUser(req, res) {
-  const userId = req.params.id;
+// Get a single pet by id
+function getSinglePet(req, res) {
+  const userId = req.params.userId;
+  const petId = req.params.petId;
 
-  knex("users")
+  knex("pets")
     .select(
       "id",
-      "first_name",
-      "last_name",
+      "user_id",
+      "name",
       "birth_date",
-      "address",
-      "city",
-      "country",
-      "email",
-      "phone",
       "type",
+      "breed",
       "bio",
       "created_at"
     )
-    .where({ "users.id": userId })
+    .where({ "pets.user_id": userId })
+    .andWhere({ "pets.id": petId })
     .then((result) => {
       if (result.length === 0) {
-        return res
-          .status(404)
-          .send({ message: `User ID ${userId} not found.` });
+        return res.status(404).send({
+          message: `User ID / Pet ID ${userId} / ${petId} not found.`,
+        });
       }
 
       return res.status(200).json(result[0]);
@@ -77,50 +74,17 @@ function getSingleUser(req, res) {
     .catch((err) => {
       // Console.log shows the error only on the server side
       console.log(
-        `getSingleUser: Error retrieving data for the User ID ${userId} ${err}`
+        `getSinglePet: Error retrieving data for the pet ID ${petId} ${err}`
       );
       return res
         .status(400)
-        .send(`Error retrieving data for the User ID ${userId}`);
-    });
-}
-
-// Get services by user id
-function getUserServices(req, res) {
-  const userId = req.params.id;
-
-  knex
-    .select(
-      "services.name",
-      "user_services.id",
-      "user_services.user_id",
-      "user_services.service_id"
-    )
-    .from("services")
-    .join("user_services", "user_services.service_id", "services.id")
-    .where({ user_id: userId })
-    .then((response) => {
-      if (response.length === 0) {
-        return res
-          .status(404)
-          .json({ message: `User with ID: ${userId} not  found` });
-      }
-      res.status(200).json(response);
-    })
-    .catch((err) => {
-      // Console.log shows the error only on the server side
-      console.log(
-        `getUserServices: Unable to retrieve data with ID: ${req.params.id} ${err}`
-      );
-      res.status(500).json({
-        message: `Unable to retrieve data with ID: ${req.params.id}`,
-      });
+        .send(`Error retrieving data for the pet ID ${petId}`);
     });
 }
 
 // POST functions
-// Add a new User
-function postUser(req, res) {
+// Add a new Pet
+function postPet(req, res) {
   knex("users")
     .insert(req.body)
     .then((result) => {
@@ -139,33 +103,11 @@ function postUser(req, res) {
     });
 }
 
-// Add a service to a user
-function postUserService(req, res) {
-  return res.status(200).json({ messsage: "Not implemented." });
-}
-
 // DELETE
-// Delete a user
-function deleteUser(req, res) {
-  knex("users")
-    .where({ id: req.params.id })
-    .del()
-    .then((result) => {
-      if (result === 0) {
-        return res.status(404).json({
-          message: `User with ID: ${req.params.id} to be deleted not found.`,
-        });
-      }
-      res.status(204).send();
-    })
-    .catch(() => {
-      res.status(500).json({ message: "Unable to delete user" });
-    });
-}
-
-// Delete service by user id/service id
-function deleteUserService(req, res) {
-  if (!Number(req.params.id) || !Number(req.params.srvId)) {
+// Delete pet by user id/pet id
+// TODO: not implemented *****
+function deletePet(req, res) {
+  if (!Number(req.params.userId) || !Number(req.params.petId)) {
     return res.status(404).json({
       message: `User ID and Service ID should be a number.`,
     });
@@ -189,7 +131,7 @@ function deleteUserService(req, res) {
 }
 // PUT
 // Edit User
-function editUser(req, res) {
+function editPet(req, res) {
   const userId = req.params.id;
 
   knex("users")
@@ -298,13 +240,10 @@ function validateBody(req, res, next) {
 }
 
 module.exports = {
-  postUser,
-  getUsers,
-  deleteUser,
-  editUser,
-  getSingleUser,
-  getUserServices,
-  postUserService,
-  deleteUserService,
+  postPet,
+  deletePet,
+  editPet,
+  getPets,
+  getSinglePet,
   validateBody,
 };
