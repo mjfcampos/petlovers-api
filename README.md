@@ -13,3 +13,7 @@ npm run seed
 ## To start the server, use:
 
 npm run dev
+
+## To use and test the APIs, please import the Postman collection file:
+
+PetLovers.postman_collection.json
